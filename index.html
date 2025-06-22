@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Test Curs</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 2rem;
+      text-align: center;
+    }
+    .intrebare {
+      margin: 2rem 0;
+      padding: 1rem;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #ccc;
+    }
+    input[type="text"] {
+      padding: 0.5rem;
+      width: 200px;
+    }
+    .rezultat {
+      font-size: 1.5rem;
+      margin-top: 1.5rem;
+    }
+    .verde { color: green; }
+    .rosu { color: red; }
+  </style>
+</head>
+<body>
+  <h1>Test Curs JavaScript</h1>
+
+  <div>
+    <label>Numele tău: <input type="text" id="nume" placeholder="Introdu numele" required></label>
+  </div>
+
+  <form id="testForm">
+    <div class="intrebare">
+      <p>1. Ce înseamnă HTML?</p>
+      <label><input type="radio" name="q1" value="0"> HighText Machine Language</label><br>
+      <label><input type="radio" name="q1" value="1"> HyperText Markup Language</label><br>
+      <label><input type="radio" name="q1" value="0"> Home Tool Markup Language</label>
+    </div>
+
+    <div class="intrebare">
+      <p>2. Care este rezultatul lui 2 + 2 * 2 în JavaScript?</p>
+      <label><input type="radio" name="q2" value="1"> 6</label><br>
+      <label><input type="radio" name="q2" value="0"> 8</label><br>
+      <label><input type="radio" name="q2" value="0"> 12</label>
+    </div>
+
+    <button type="submit">Trimite testul</button>
+  </form>
+
+  <div id="rezultat" class="rezultat"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD5pUKlsHhvwhPtnNeJe_EN3XpLvC-3YFA",
+      authDomain: "platforma-cursuri.firebaseapp.com",
+      databaseURL: "https://platforma-cursuri-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "platforma-cursuri",
+      storageBucket: "platforma-cursuri.firebasestorage.app",
+      messagingSenderId: "143665488561",
+      appId: "1:143665488561:web:93c8d46641a46716263890",
+      measurementId: "G-W9L8LYQNZV"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase();
+
+    const form = document.getElementById("testForm");
+    const rezultatDiv = document.getElementById("rezultat");
+
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const nume = document.getElementById("nume").value.trim();
+      if (!nume) {
+        alert("Introdu numele tău!");
+        return;
+      }
+
+      let scor = 0;
+      const intrebari = form.querySelectorAll("input[type='radio']:checked");
+      intrebari.forEach(r => scor += parseInt(r.value));
+
+      const rezultat = {
+        nume,
+        scor,
+        data: new Date().toISOString()
+      };
+
+      const newResultRef = push(ref(db, "rezultate"));
+      set(newResultRef, rezultat);
+
+      if (scor >= 1) {
+        rezultatDiv.innerHTML = `✅ Felicitări, ${nume}! Ai trecut testul cu scorul ${scor}/2.`;
+        rezultatDiv.className = "rezultat verde";
+      } else {
+        rezultatDiv.innerHTML = `❌ Ne pare rău, ${nume}. Ai picat testul cu scorul ${scor}/2.`;
+        rezultatDiv.className = "rezultat rosu";
+      }
+    });
+  </script>
+</body>
+</html>
